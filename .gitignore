@@ -1,0 +1,26 @@
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# JetBrains Rider
+.idea/
+*.iml
+
+# UE generated
+Binaries/
+Intermediate/
+DerivedDataCache/
+Saved/
+
+# Build outputs
+*.dll
+*.lib
+*.exp
+*.pdb
+
+# OS
+.DS_Store
+Thumbs.db
