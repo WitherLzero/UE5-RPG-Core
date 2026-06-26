@@ -63,8 +63,15 @@ void URPGAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Inpu
 			AbilitySpecInputPressed(AbilitySpec);
 			if (AbilitySpec.IsActive())
 			{
-				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, 
-					AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+				// UE 5.5+ FIX: use the active instance's prediction key for consistency with InputReleased.
+				FPredictionKey PredictionKey = AbilitySpec.ActivationInfo.GetActivationPredictionKey();
+				const TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
+				if (Instances.Num() > 0)
+				{
+					PredictionKey = Instances.Last()->GetCurrentActivationInfoRef().GetActivationPredictionKey();
+				}
+				
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, PredictionKey);
 			}
 		}
 	}
@@ -98,8 +105,18 @@ void URPGAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& Inp
 		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) && AbilitySpec.IsActive())
 		{
 			AbilitySpecInputReleased(AbilitySpec);
-			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, 
-				AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+
+			// UE 5.5+ FIX: Prediction key must come from the active ability instance,
+			// not from the spec's stale ActivationInfo. Otherwise WaitInputRelease
+			// receives the wrong key and either fires immediately or never fires.
+			FPredictionKey PredictionKey = AbilitySpec.ActivationInfo.GetActivationPredictionKey();
+			const TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
+			if (Instances.Num() > 0)
+			{
+				PredictionKey = Instances.Last()->GetCurrentActivationInfoRef().GetActivationPredictionKey();
+			}
+			
+			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, PredictionKey);
 		}
 	}
 }
