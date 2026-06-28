@@ -15,7 +15,10 @@ public class RPGCoreEditor : ModuleRules
 			"Slate", "SlateCore",
 			"GameplayTags",
 			"GameplayTagsEditor",
-			"AssetRegistry"
+			"AssetRegistry",
+			"LevelEditor",
+			"ToolMenus",
+			"Blutility"
 		});
 	}
 }
