@@ -1,0 +1,28 @@
+{
+	"FileVersion": 3,
+	"VersionName": "1.0",
+	"FriendlyName": "RPGCore",
+	"Description": "Shared RPG gameplay systems and editor tools for Unreal Engine 5.",
+	"Category": "Gameplay",
+	"CreatedBy": "rynnli",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "RPGCore",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "RPGCoreEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit"
+		}
+	]
+}
