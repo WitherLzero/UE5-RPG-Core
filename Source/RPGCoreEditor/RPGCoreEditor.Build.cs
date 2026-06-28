@@ -18,7 +18,8 @@ public class RPGCoreEditor : ModuleRules
 			"AssetRegistry",
 			"LevelEditor",
 			"ToolMenus",
-			"Blutility"
+			"Blutility",
+			"UMGEditor"
 		});
 	}
 }
