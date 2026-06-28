@@ -66,47 +66,63 @@ RPGCore/
 集成前提：UE 5.3+ C++ 项目，已启用 GameplayAbilities / EnhancedInput / Niagara / MotionWarping 插件。
 ```
 
-**Step 1 — 将 RPGCore 克隆到项目 Source 目录**
+RPGCore 以 **UE5 插件** 的形式分发，内含两个子模块：
+- **RPGCore**（Runtime）— 运行时 RPG 框架代码
+- **RPGCoreEditor**（Editor）— 编辑器工具（GameplayTag Browser 等）
+
+**Step 1 — 将 RPGCore 作为子模块添加到项目 Plugins 目录**
+
+推荐使用 git 子模块方式集成，便于后续更新：
 
 ```bash
-# 在项目 Source/ 目录下执行
-git clone https://github.com/yourname/UE5-RPG-Core.git RPGCore
+# 在项目根目录下执行
+git submodule add https://github.com/WitherLzero/UE5-RPG-Core.git Plugins/RPGCore
+```
+
+如果不需要 git 追踪，也可直接克隆：
+
+```bash
+git clone https://github.com/WitherLzero/UE5-RPG-Core.git Plugins/RPGCore
 ```
 
 目录结构应为：
 
 ```
 MyGame/
-└── Source/
-    ├── MyGame/              # UE 自动创建的游戏模块
-    └── RPGCore/             # 本框架（克隆）
-        ├── RPGCore.Build.cs
-        ├── Public/
-        └── Private/
+├── MyGame.uproject
+└── Plugins/
+    └── RPGCore/             # 本框架（UE5 插件）
+        ├── RPGCore.uplugin  # 插件描述文件
+        ├── Source/
+        │   ├── RPGCore/     # Runtime 模块
+        │   │   ├── RPGCore.Build.cs
+        │   │   ├── Public/
+        │   │   └── Private/
+        │   └── RPGCoreEditor/  # Editor 模块
+        │       ├── RPGCoreEditor.Build.cs
+        │       ├── Public/
+        │       └── Private/
+        └── Content/         # 插件自带蓝图资产
 ```
 
-**Step 2 — 在 `.uproject` 中注册模块**
+> 插件作为 UE5 Plugin 自动发现，**无需**手动修改 `.uproject` 的 `Modules` 数组或 `Target.cs`。
 
-打开 `MyGame.uproject`，在 `Modules` 数组中添加 RPGCore：
+**Step 2 — 在 `.uproject` 中注册插件**
+
+打开 `MyGame.uproject`，在 `Plugins` 数组中添加 RPGCore：
 
 ```json
-{
-  "Modules": [
-    { "Name": "MyGame", "Type": "Runtime", "LoadingPhase": "Default" },
-    { "Name": "RPGCore", "Type": "Runtime", "LoadingPhase": "Default" }
-  ]
-}
+"Plugins": [
+  { "Name": "RPGCore", "Enabled": true },
+  { "Name": "GameplayAbilities", "Enabled": true },
+  { "Name": "MotionWarping",     "Enabled": true },
+  { "Name": "Niagara",           "Enabled": true }
+]
 ```
 
-**Step 3 — 更新 Target.cs 文件**
+> `EnhancedInput` 在 UE 5.3+ 中默认启用，无需单独配置。
 
-在 `Source/MyGame.Target.cs` 和 `Source/MyGameEditor.Target.cs` 中添加：
-
-```csharp
-ExtraModuleNames.AddRange(new string[] { "MyGame", "RPGCore" });
-```
-
-**Step 4 — 在游戏模块 Build.cs 中添加依赖**
+**Step 3 — 在游戏模块 Build.cs 中添加依赖**
 
 在 `Source/MyGame/MyGame.Build.cs` 中：
 
@@ -117,25 +133,11 @@ PublicDependencyModuleNames.AddRange(new string[] {
 });
 ```
 
-**Step 5 — 启用所需插件**
-
-在 `.uproject` 的 `Plugins` 数组中确认以下插件已启用：
-
-```json
-"Plugins": [
-  { "Name": "GameplayAbilities", "Enabled": true },
-  { "Name": "MotionWarping",     "Enabled": true },
-  { "Name": "Niagara",           "Enabled": true }
-]
-```
-
-> `EnhancedInput` 在 UE 5.3+ 中默认启用，无需单独配置。
-
-**Step 6 — 编译**
+**Step 4 — 编译**
 
 使用 Rider / Visual Studio 编译 Development Editor，或右键 `.uproject` → Generate Project Files 后编译。
 
-**Step 7 — 配置全局 DataAsset + 开始搭建**
+**Step 5 — 配置全局 DataAsset + 开始搭建**
 
 1. 启动编辑器，在 Project Settings → RPG Framework 中指定三个全局 DataAsset：  
    `DA_AbilityInfo`、`DA_AttributeInfo`、`DA_LevelUpInfo`。
@@ -143,7 +145,7 @@ PublicDependencyModuleNames.AddRange(new string[] {
 
 ---
 
-> **快捷提示**：首次集成后，后续更新 RPGCore 只需 `git pull` 并重新编译即可，无需重复编辑 `.uproject` 和 `Target.cs`。
+> **快捷提示**：插件集成后，后续更新 RPGCore 只需 `git pull`（子模块方式则为 `git submodule update --remote Plugins/RPGCore`）并重新编译即可。Editor 工具（**Tools → RPGCore → GameplayTag Browser**）和编辑器蓝图资产随插件自动可用，无需额外配置。
 
 ---
 
