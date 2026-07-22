@@ -222,6 +222,7 @@ void URPGAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamepl
 					}
 					
 					ClearAbilityInput(SpecWithInput);
+					MarkAbilitySpecDirty(*SpecWithInput);
 				}
 			}
 
