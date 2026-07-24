@@ -9,6 +9,7 @@
 #include "RPGFramework/GAS/RPGAbilitySystemComponent.h"
 #include "RPGFramework/Input/RPGInputComponent.h"
 #include "RPGFramework/Interaction/EnemyInterface.h"
+#include "RPGFramework/Stats/RPGCoreStats.h"
 #include "RPGFramework/Types/RPGGameplayTags.h"
 #include "RPGFramework/UI/Widgets/DamageTextComponent.h"
 
@@ -20,6 +21,7 @@ ARPGPlayerController::ARPGPlayerController()
 
 void ARPGPlayerController::PlayerTick(float DeltaTime)
 {
+	SCOPE_CYCLE_COUNTER(STAT_PlayerTick);
 	Super::PlayerTick(DeltaTime);
 	
 	CursorTrace();
@@ -63,6 +65,7 @@ void ARPGPlayerController::ShowDamageNumber_Implementation(ACharacter* TargetCha
 
 void ARPGPlayerController::CursorTrace()
 {
+	SCOPE_CYCLE_COUNTER(STAT_CursorTrace);
 	if (GetASC() && GetASC()->HasMatchingGameplayTag(FRPGGameplayTags::Get().Player_Block_CursorTrace))
 	{
 		if (LastActor) LastActor->UnHighlightActor();
@@ -128,6 +131,7 @@ void ARPGPlayerController::OnInputTagHeld(const FInputActionValue& InputActionVa
 void ARPGPlayerController::ProcessInputTag(FGameplayTag InputTag, ERPGInputEvent EventType,
                                             const FInputActionValue& InputActionValue)
 {
+	SCOPE_CYCLE_COUNTER(STAT_ProcessInputTag);
 	if (IInputInteractable* Interface = Cast<IInputInteractable>(GetPawn()))
 	{
 		if (Interface->HandleNativeInput(InputTag,EventType,InputActionValue)) return;

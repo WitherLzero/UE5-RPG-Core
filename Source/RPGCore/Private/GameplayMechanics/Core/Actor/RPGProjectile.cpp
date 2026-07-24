@@ -2,6 +2,7 @@
 
 
 #include "GameplayMechanics/Core/Actor/RPGProjectile.h"
+#include "RPGFramework/Stats/RPGCoreStats.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
@@ -70,6 +71,7 @@ void ARPGProjectile::Destroyed()
 void ARPGProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                      UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	SCOPE_CYCLE_COUNTER(STAT_ProjectileOverlap);
 	if (OtherActor == GetInstigator()) return;
 	
 	if (!bHit) HandleOnHit();
@@ -94,6 +96,7 @@ void ARPGProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, A
 
 void ARPGProjectile::HandleOnHit()
 {
+	SCOPE_CYCLE_COUNTER(STAT_HandleOnHit);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,ImpactEffect,GetActorLocation());
 	UGameplayStatics::PlaySoundAtLocation(this,ImpactSound,GetActorLocation(),FRotator::ZeroRotator);
 	if (LoopingAudioComponent) LoopingAudioComponent->Stop();
@@ -166,6 +169,7 @@ void ARPGProjectile::EnableHoming(float AccelerationMin, float AccelerationMax)
 
 void ARPGProjectile::OnHomingTrackerTick()
 {
+	SCOPE_CYCLE_COUNTER(STAT_OnHomingTrackerTick);
 	if (IsValid(HomingTargetActor))
 	{
 		HomingTargetLocation = HomingTargetActor->GetActorLocation();

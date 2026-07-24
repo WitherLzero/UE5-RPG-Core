@@ -1,6 +1,7 @@
 // Copyright rynnli
 
 #include "RPGFramework/GAS/TargetActor/RPGTargetActor_Indicator.h"
+#include "RPGFramework/Stats/RPGCoreStats.h"
 #include "Abilities/GameplayAbility.h"
 #include "Components/DecalComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -32,6 +33,7 @@ void ARPGTargetActor_Indicator::StartTargeting(UGameplayAbility* Ability)
 
 void ARPGTargetActor_Indicator::Tick(float DeltaTime)
 {
+	SCOPE_CYCLE_COUNTER(STAT_TargetIndicatorTick);
 	Super::Tick(DeltaTime);
 
 	// 不断向 PlayerController 索要底板坐标，移动自身

@@ -2,6 +2,7 @@
 
 
 #include "RPGFramework/GAS/RPGAbilitySystemComponent.h"
+#include "RPGFramework/Stats/RPGCoreStats.h"
 
 #include "GameplayMechanics/Core/RPGAbilitySystemLibrary.h"
 #include "RPGFramework/GAS/Abilities/RPGGameplayAbilityBase.h"
@@ -53,6 +54,7 @@ void URPGAbilitySystemComponent::ApplyActionToAbilities(const FAbilitySpecAction
 
 void URPGAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
 {
+	SCOPE_CYCLE_COUNTER(STAT_AbilityInputTagPressed);
 	if (!InputTag.IsValid()) return;
 
 	FScopedAbilityListLock ActiveScopedLock(*this);
@@ -79,6 +81,7 @@ void URPGAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Inpu
 
 void URPGAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
+	SCOPE_CYCLE_COUNTER(STAT_AbilityInputTagHeld);
 	if (!InputTag.IsValid()) return;
 
 	FScopedAbilityListLock ActiveScopedLock(*this);
@@ -97,6 +100,7 @@ void URPGAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTa
 
 void URPGAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
 {
+	SCOPE_CYCLE_COUNTER(STAT_AbilityInputTagReleased);
 	if (!InputTag.IsValid()) return;
 
 	FScopedAbilityListLock ActiveScopedLock(*this);

@@ -1,4 +1,5 @@
 ﻿#include "RPGFramework/GAS/AttributeSets/VitalAttributeSet.h"
+#include "RPGFramework/Stats/RPGCoreStats.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "RPGFramework/Types/RPGGameplayTags.h"
@@ -48,6 +49,7 @@ void UVitalAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute,
 
 void UVitalAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
+	SCOPE_CYCLE_COUNTER(STAT_VitalPostGEExecute);
 	Super::PostGameplayEffectExecute(Data);
 
 	if (EffectProps.TargetCharacter->FindComponentByClass<UVitalityComponent>()->IsDead()) return;

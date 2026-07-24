@@ -2,6 +2,7 @@
 
 
 #include "RPGFramework/GAS/AttributeSets/RPGAttributeSetBase.h"
+#include "RPGFramework/Stats/RPGCoreStats.h"
 #include "GameplayEffectExtension.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -20,6 +21,7 @@ void URPGAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCal
 
 void URPGAttributeSetBase::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_SetEffectProperties);
 	Props.EffectContextHandle = Data.EffectSpec.GetContext();
 	Props.SourceASC = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
 
