@@ -9,6 +9,8 @@
 #include "RPGPlayerController.generated.h"
 
 class UDamageTextComponent;
+class ADamageTextActor;
+class UDamageTextPoolManager;
 class URPGAbilitySystemComponent;
 enum class ERPGInputEvent : uint8;
 class URPGInputConfig;
@@ -58,6 +60,16 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UDamageTextComponent> DamageTextCompClass;
+
+	/** DamageTextActor class for Actor-pooling (Scheme B). */
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ADamageTextActor> DamageTextActorClass;
+
+	UPROPERTY()
+	TObjectPtr<UDamageTextPoolManager> DamageTextPool;
+
+	UFUNCTION(BlueprintPure)
+	UDamageTextPoolManager* GetDamageTextPool() const { return DamageTextPool; }
 	
 	UPROPERTY()
 	TObjectPtr<URPGAbilitySystemComponent> AbilitySystemComponent;

@@ -9,9 +9,11 @@
 #include "RPGFramework/GAS/RPGAbilitySystemComponent.h"
 #include "RPGFramework/Input/RPGInputComponent.h"
 #include "RPGFramework/Interaction/EnemyInterface.h"
+#include "RPGFramework/Pooling/DamageTextPoolManager.h"
 #include "RPGFramework/Stats/RPGCoreStats.h"
 #include "RPGFramework/Types/RPGGameplayTags.h"
-#include "RPGFramework/UI/Widgets/DamageTextComponent.h"
+#include "RPGFramework/Pooling/DamageTextActor.h"
+#include "Containers/Ticker.h"
 
 
 ARPGPlayerController::ARPGPlayerController()
@@ -40,6 +42,14 @@ void ARPGPlayerController::BeginPlay()
 		Subsystem->AddMappingContext( CurrentMappingContext,0);
 	}
 	
+	// Initialize damage text pool (Actor-pooling: Scheme B)
+	if (DamageTextActorClass)
+	{
+		DamageTextPool = NewObject<UDamageTextPoolManager>(this);
+		DamageTextPool->Initialize(this, DamageTextActorClass);
+		DamageTextPool->PreWarm(10);
+	}
+	
 	UpdateMouse();
 }
 
@@ -53,14 +63,25 @@ void ARPGPlayerController::SetupInputComponent()
 
 void ARPGPlayerController::ShowDamageNumber_Implementation(ACharacter* TargetCharacter, float DamageAmount, bool bBlockedHit, bool bCriticalHit)
 {
-	if (IsValid(TargetCharacter) && DamageTextCompClass)
-	{
-		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharacter,DamageTextCompClass);
-		DamageText->RegisterComponent();
-		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);
-		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		DamageText->SetDamageText(DamageAmount,bBlockedHit,bCriticalHit);
-	}
+	if (!IsValid(TargetCharacter) || !DamageTextPool) return;
+
+	// Defer to next tick: Acquired() → OnRegister needs one frame for Slate
+	// to fully sync the widget before PlayAnimation fires. Remote clients
+	// already have this delay naturally via the RPC network round-trip.
+	FTSTicker::GetCoreTicker().AddTicker(
+		FTickerDelegate::CreateLambda([this, DamageAmount, bBlockedHit, bCriticalHit,
+			WorldLocation = TargetCharacter->GetActorLocation() + FVector(0, 0, 100),
+			WeakTarget = MakeWeakObjectPtr(TargetCharacter)](float)
+		{
+			if (!WeakTarget.IsValid() || !DamageTextPool) return false;
+
+			ADamageTextActor* TextActor = DamageTextPool->Acquire(WorldLocation);
+			if (TextActor)
+			{
+				TextActor->SetDamageText(DamageAmount, bBlockedHit, bCriticalHit);
+			}
+			return false;
+		}), 0.0f);
 }
 
 void ARPGPlayerController::CursorTrace()
