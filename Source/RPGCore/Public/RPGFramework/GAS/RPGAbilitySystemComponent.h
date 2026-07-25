@@ -51,7 +51,7 @@ public:
 	
 	void UpdateAbilityStatuses(int32 Level);
 	void UnlockOrUpgradeAbility(const FGameplayTag& AbilityTag);
-	bool GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription);
+	bool GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FText& OutDescription, FText& OutNextLevelDescription);
 	
 	UFUNCTION(Server, Reliable)
 	void ServerEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag);

@@ -8,19 +8,22 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 
-FString URPGGameplayAbilityBase::GetDescription(int32 Level)
+FText URPGGameplayAbilityBase::GetDescription(int32 Level)
 {
-	return FString::Printf(TEXT("<Default>%s, </><Level>%d</>"), L"Default Ability Name - LoremIpsum LoremIpsum LoremIpsum ", Level);
+	return FText::Format(INVTEXT("<Default>Default Ability Name - LoremIpsum LoremIpsum LoremIpsum, </><Level>{0}</>"),
+		FText::AsNumber(Level));
 }
 
-FString URPGGameplayAbilityBase::GetNextLevelDescription(int32 Level)
+FText URPGGameplayAbilityBase::GetNextLevelDescription(int32 Level)
 {
-	return FString::Printf(TEXT("<Default>Next Level: </><Level>%d</> \n<Default>Causes much more damage. </>"), Level);
+	return FText::Format(INVTEXT("<Default>Next Level: </><Level>{0}</> \n<Default>Causes much more damage. </>"),
+		FText::AsNumber(Level));
 }
 
-FString URPGGameplayAbilityBase::GetLockedDescription(int32 Level)
+FText URPGGameplayAbilityBase::GetLockedDescription(int32 Level)
 {
-	return FString::Printf(TEXT("<Default>Spell Locked Until Level: %d</>"), Level);
+	return FText::Format(INVTEXT("<Default>Spell Locked Until Level: {0}</>"),
+		FText::AsNumber(Level));
 }
 
 float URPGGameplayAbilityBase::GetManaCost(float InLevel) const

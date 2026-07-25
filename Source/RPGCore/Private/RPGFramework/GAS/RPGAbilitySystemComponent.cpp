@@ -173,7 +173,7 @@ void URPGAbilitySystemComponent::UnlockOrUpgradeAbility(const FGameplayTag& Abil
 	}
 }
 
-bool URPGAbilitySystemComponent::GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription)
+bool URPGAbilitySystemComponent::GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FText& OutDescription, FText& OutNextLevelDescription)
 {
 	if (const FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
 	{
@@ -188,13 +188,13 @@ bool URPGAbilitySystemComponent::GetDescriptionsByAbilityTag(const FGameplayTag&
 	
 	if (!AbilityTag.IsValid() || AbilityTag.MatchesTagExact(FRPGGameplayTags::Get().Abilities_None))
 	{
-		OutDescription = FString();
+		OutDescription = FText::GetEmpty();
 	}
 	else
 	{
 		OutDescription = URPGGameplayAbilityBase::GetLockedDescription(AbilityInfo->FindAbilityInfoForTag(AbilityTag).LevelRequirement);
 	}
-	OutNextLevelDescription = FString();
+	OutNextLevelDescription = FText::GetEmpty();
 	return false;
 }
 
