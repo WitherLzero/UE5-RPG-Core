@@ -87,7 +87,14 @@ void ARPGPlayerController::ShowDamageNumber_Implementation(ACharacter* TargetCha
 void ARPGPlayerController::CursorTrace()
 {
 	SCOPE_CYCLE_COUNTER(STAT_CursorTrace);
-	if (GetASC() && GetASC()->HasMatchingGameplayTag(FRPGGameplayTags::Get().Player_Block_CursorTrace))
+	
+	URPGAbilitySystemComponent* ASC = AbilitySystemComponent;
+	if (ASC == nullptr)
+	{
+		ASC = GetASC();
+	}
+
+	if (ASC && ASC->HasMatchingGameplayTag(FRPGGameplayTags::Get().Player_Block_CursorTrace))
 	{
 		if (LastActor) LastActor->UnHighlightActor();
 		if (ThisActor) ThisActor->UnHighlightActor();
@@ -95,6 +102,15 @@ void ARPGPlayerController::CursorTrace()
 		ThisActor = nullptr;
 		return;
 	}
+
+	// Throttle scene-query to ~30 Hz — cheap on its own, kept as a defensive pattern.
+	const float CurrentTime = GetWorld()->GetTimeSeconds();
+	if ((CurrentTime - CursorTraceLastTime) < CursorTraceInterval)
+	{
+		return;
+	}
+	CursorTraceLastTime = CurrentTime;
+
 	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 	if (!CursorHit.bBlockingHit) return;

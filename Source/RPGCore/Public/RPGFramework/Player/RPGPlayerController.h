@@ -74,6 +74,16 @@ private:
 	
 	TScriptInterface<IEnemyInterface> LastActor;
 	TScriptInterface<IEnemyInterface> ThisActor;
+
+	/** Rate-limits the cursor scene-query in CursorTrace().
+	 *  At 30 Hz the latency is unnoticeable for highlight feedback
+	 *  while cutting ~50 % of the queries per second.
+	 *  This is primarily a defensive / learning optimisation —
+	 *  the single line-trace itself is cheap on modern hardware,
+	 *  but the pattern matters when the scene is heavy
+	 *  (e.g. complex collision, mobile, many actors). */
+	float CursorTraceLastTime = 0.f;
+	static constexpr float CursorTraceInterval = 1.f / 30.f;
 	
 public:
 	bool GetCursorHit(FHitResult& HitResult);

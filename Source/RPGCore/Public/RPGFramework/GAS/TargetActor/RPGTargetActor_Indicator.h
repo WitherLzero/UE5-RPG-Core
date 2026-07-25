@@ -9,7 +9,7 @@
 class UDecalComponent;
 
 /**
- * 通用的面向地面的二段施法指示器（圆形拾取�? */
+ * Ground-targeting indicator with a decal ring for two-stage activation abilities. */
 UCLASS()
 class RPGCORE_API ARPGTargetActor_Indicator : public AGameplayAbilityTargetActor
 {
@@ -18,17 +18,20 @@ class RPGCORE_API ARPGTargetActor_Indicator : public AGameplayAbilityTargetActor
 public:
 	ARPGTargetActor_Indicator();
 
-	// Task 节点开始阶段会调用此函数
+	// Called by the ability task to begin targeting.
 	virtual void StartTargeting(UGameplayAbility* Ability) override;
 
-	// ASC 触发 LocalInputConfirm 时，通过内部委托会路由到这里
+	// Routed through internal delegates when the ASC fires LocalInputConfirm.
 	virtual void ConfirmTargetingAndContinue() override;
 
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	// 用于显示范围圈的贴花组件
+	// Decal component that visualises the indicator radius on the ground.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Indicator")
 	TObjectPtr<UDecalComponent> DecalComp;
+
+	// Cursor trace cached by Tick so ConfirmTargetingAndContinue does not re-query.
+	FHitResult CachedHitResult;
 
 };

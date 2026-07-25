@@ -8,7 +8,7 @@
 
 ARPGTargetActor_Indicator::ARPGTargetActor_Indicator()
 {
-	// 允许每帧 Tick 来追踪鼠标
+	// Tick every frame to follow the cursor.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 	
@@ -17,9 +17,9 @@ ARPGTargetActor_Indicator::ARPGTargetActor_Indicator()
 	DecalComp->SetupAttachment(RootComponent);
 	
 	DecalComp->DecalSize = FVector(10.f, 200.f, 200.f); 
-	DecalComp->SetVisibility(false); // 创建时隐藏，StartTargeting 时显示
+	DecalComp->SetVisibility(false); // Hidden until StartTargeting reveals it.
 
-	// 非常重要：鼠标坐标采集只在拥有鼠标的本地客户端进行
+	// Only the locally-controlled client owns the mouse cursor.
 	ShouldProduceTargetDataOnServer = false;
 }
 
@@ -27,7 +27,7 @@ void ARPGTargetActor_Indicator::StartTargeting(UGameplayAbility* Ability)
 {
 	Super::StartTargeting(Ability);
 	
-	// 技能正式开始索敌，把魔法阵显示出来
+	// Show the decal ring once targeting begins.
 	DecalComp->SetVisibility(true);
 }
 
@@ -36,40 +36,43 @@ void ARPGTargetActor_Indicator::Tick(float DeltaTime)
 	SCOPE_CYCLE_COUNTER(STAT_TargetIndicatorTick);
 	Super::Tick(DeltaTime);
 
-	// 不断向 PlayerController 索要底板坐标，移动自身
+	// Poll cursor location every frame to reposition the decal.
+	// The result is cached so ConfirmTargetingAndContinue can reuse it.
 	if (APlayerController* PC =  OwningAbility->GetActorInfo().PlayerController.Get())
 	{
-		FHitResult HitResult;
-		// 此处使用 ECC_Visibility 碰撞通道，实际可换成专属的 Floor TraceChannel
-		PC->GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
+		PC->GetHitResultUnderCursor(ECC_Visibility, false, CachedHitResult);
 
-		if (HitResult.bBlockingHit)
+		if (CachedHitResult.bBlockingHit)
 		{
-			SetActorLocation(HitResult.Location);
+			SetActorLocation(CachedHitResult.Location);
 		}
 	}
 }
 
 void ARPGTargetActor_Indicator::ConfirmTargetingAndContinue()
 {
-	// 确保是该由本地端产生数据（有鼠标那一端）
 	if (IsConfirmTargetingAllowed() && ShouldProduceTargetData())
 	{
-		FHitResult HitResult;
-		if (APlayerController* PC = OwningAbility->GetActorInfo().PlayerController.Get())
+		// Use the cached trace from Tick if available; fall back to a fresh query otherwise.
+		if (!CachedHitResult.bBlockingHit)
 		{
-			PC->GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
+			if (APlayerController* PC = OwningAbility->GetActorInfo().PlayerController.Get())
+			{
+				PC->GetHitResultUnderCursor(ECC_Visibility, false, CachedHitResult);
+			}
 		}
 
-		// 1. 组装 GAS 专用的目标数据结构
+		if (!CachedHitResult.bBlockingHit) return;
+
+		// Build the GAS target-data handle from the cursor location.
 		FGameplayAbilityTargetData_LocationInfo* LocationData = new FGameplayAbilityTargetData_LocationInfo();
-		LocationData->TargetLocation.LiteralTransform = FTransform(HitResult.Location);
+		LocationData->TargetLocation.LiteralTransform = FTransform(CachedHitResult.Location);
 		LocationData->TargetLocation.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
 		
 		FGameplayAbilityTargetDataHandle DataHandle;
 		DataHandle.Add(LocationData);
 
-		// 2. 本地广播数据，WaitTargetData 节点收到后会继续执行
+		// Broadcast locally; WaitTargetData receives this and resumes the ability.
 		TargetDataReadyDelegate.Broadcast(DataHandle);
 	}
 	
