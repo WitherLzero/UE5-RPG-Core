@@ -9,10 +9,10 @@
 #include "RPGFramework/GAS/RPGAbilitySystemComponent.h"
 #include "RPGFramework/Input/RPGInputComponent.h"
 #include "RPGFramework/Interaction/EnemyInterface.h"
-#include "RPGFramework/Pooling/DamageTextPoolManager.h"
+#include "RPGFramework/Pooling/DamageText/DamageTextPoolManager.h"
 #include "RPGFramework/Stats/RPGCoreStats.h"
 #include "RPGFramework/Types/RPGGameplayTags.h"
-#include "RPGFramework/Pooling/DamageTextActor.h"
+#include "RPGFramework/Pooling/DamageText/DamageTextActor.h"
 #include "Containers/Ticker.h"
 
 

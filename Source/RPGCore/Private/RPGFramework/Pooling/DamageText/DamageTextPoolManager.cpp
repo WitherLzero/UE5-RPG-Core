@@ -1,8 +1,8 @@
 // Copyright rynnli
 
-#include "RPGFramework/Pooling/DamageTextPoolManager.h"
+#include "RPGFramework/Pooling/DamageText/DamageTextPoolManager.h"
 
-#include "RPGFramework/Pooling/DamageTextActor.h"
+#include "RPGFramework/Pooling/DamageText/DamageTextActor.h"
 #include "GameFramework/PlayerController.h"
 
 void UDamageTextPoolManager::Initialize(APlayerController* Owner, TSubclassOf<ADamageTextActor> InClass)

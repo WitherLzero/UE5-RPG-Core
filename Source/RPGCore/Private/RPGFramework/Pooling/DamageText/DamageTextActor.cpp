@@ -1,6 +1,6 @@
 // Copyright rynnli
 
-#include "RPGFramework/Pooling/DamageTextActor.h"
+#include "RPGFramework/Pooling/DamageText/DamageTextActor.h"
 #include "Components/WidgetComponent.h"
 
 ADamageTextActor::ADamageTextActor()

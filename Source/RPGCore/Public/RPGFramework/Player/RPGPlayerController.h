@@ -58,8 +58,6 @@ private:
 	UPROPERTY(EditDefaultsOnly,Category= "Input")
 	TObjectPtr<URPGInputConfig> InputConfig;
 	
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UDamageTextComponent> DamageTextCompClass;
 
 	/** DamageTextActor class for Actor-pooling (Scheme B). */
 	UPROPERTY(EditDefaultsOnly)
