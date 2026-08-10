@@ -25,6 +25,10 @@ void ARPGCharacterBase::Move(const FVector2D& InputAxis)
 {
 }
 
+void ARPGCharacterBase::Look(const FVector2D& InputAxis)
+{
+}
+
 
 void ARPGCharacterBase::BeginPlay()
 {

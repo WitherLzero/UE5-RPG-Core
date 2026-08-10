@@ -156,6 +156,11 @@ FString("State Tag for stunned character.")
 		FString("Input Tag for Movement")
 		);
 	
+	GameplayTags.Inputs_Look = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Inputs.Look"),
+		FString("Input Tag for Looking / Camera Rotation")
+		);
+	
 	
 	GameplayTags.Player_Block_CursorTrace = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	FName("Player.Block.CursorTrace"),

@@ -72,6 +72,7 @@ public:
 	FGameplayTag Inputs_3;
 	FGameplayTag Inputs_4;
 	FGameplayTag Inputs_Move;
+	FGameplayTag Inputs_Look;
 	
 	FGameplayTag Player_Block_InputPressed;
 	FGameplayTag Player_Block_InputHeld;

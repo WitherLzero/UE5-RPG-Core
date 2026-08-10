@@ -23,6 +23,7 @@ public:
 	ARPGCharacterBase();
 
 	virtual void Move(const FVector2D& InputAxis);
+	virtual void Look(const FVector2D& InputAxis);
 
 protected:
 	virtual void BeginPlay() override;
