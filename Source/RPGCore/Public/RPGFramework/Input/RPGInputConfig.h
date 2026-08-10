@@ -23,10 +23,10 @@ struct FRPGInputAction
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	const class UInputAction* InputAction = nullptr;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Inputs"))
 	FGameplayTag InputTag = FGameplayTag();
 };
 
@@ -39,6 +39,6 @@ public:
 	
 	const UInputAction* FindInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound) const;
 	
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
 	TArray<FRPGInputAction> TaggedInputActions;
 };
