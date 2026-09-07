@@ -2,6 +2,7 @@
 
 
 #include "RPGFramework/Character/RPGCharacterBase.h"
+#include "RPGFramework/Player/RPGPlayerState.h"
 
 #include "AbilitySystemComponent.h"
 #include "InputActionValue.h"
@@ -39,8 +40,28 @@ void ARPGCharacterBase::BeginPlay()
 
 
 
+void ARPGCharacterBase::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	InitAbilityActorInfo();
+}
+
+void ARPGCharacterBase::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	InitAbilityActorInfo();
+}
+
 void ARPGCharacterBase::InitAbilityActorInfo()
 {
+	if (ARPGPlayerState* PS = GetPlayerState<ARPGPlayerState>())
+	{
+		AbilitySystemComponent = PS->GetAbilitySystemComponent();
+		if (AbilitySystemComponent)
+		{
+			AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+		}
+	}
 }
 
 void ARPGCharacterBase::InitDefaultAttributes() const
