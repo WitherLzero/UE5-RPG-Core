@@ -1,4 +1,4 @@
-﻿// Copyright rynnli
+// Copyright rynnli
 
 
 #include "RPGFramework/Player/RPGPlayerController.h"
@@ -8,7 +8,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "RPGFramework/GAS/RPGAbilitySystemComponent.h"
 #include "RPGFramework/Input/RPGInputComponent.h"
-#include "RPGFramework/Interaction/EnemyInterface.h"
 #include "RPGFramework/Pooling/DamageText/DamageTextPoolManager.h"
 #include "RPGFramework/Stats/RPGCoreStats.h"
 #include "RPGFramework/Types/RPGGameplayTags.h"
@@ -26,9 +25,7 @@ void ARPGPlayerController::PlayerTick(float DeltaTime)
 	SCOPE_CYCLE_COUNTER(STAT_PlayerTick);
 	Super::PlayerTick(DeltaTime);
 	
-	CursorTrace();
 }
-
 
 void ARPGPlayerController::BeginPlay()
 {
@@ -50,7 +47,22 @@ void ARPGPlayerController::BeginPlay()
 		DamageTextPool->PreWarm(10);
 	}
 	
-	UpdateMouse();
+	// Apply cursor configuration once (genre-neutral, see docs/adr/0003).
+	// Dynamic show/hide during gameplay is owned by the mechanics that need
+	// the cursor — they call the engine APIs directly.
+	bShowMouseCursor = bShowCursor;
+	DefaultMouseCursor = MouseCursorType;
+	if (bUseGameAndUIMode)
+	{
+		FInputModeGameAndUI InputModeData;
+		InputModeData.SetLockMouseToViewportBehavior(MouseLockMode);
+		InputModeData.SetHideCursorDuringCapture(bHideCursorDuringCapture);
+		SetInputMode(InputModeData);
+	}
+	else
+	{
+		SetInputMode(FInputModeGameOnly());
+	}
 }
 
 void ARPGPlayerController::SetupInputComponent()
@@ -82,60 +94,6 @@ void ARPGPlayerController::ShowDamageNumber_Implementation(ACharacter* TargetCha
 			}
 			return false;
 		}), 0.0f);
-}
-
-void ARPGPlayerController::CursorTrace()
-{
-	SCOPE_CYCLE_COUNTER(STAT_CursorTrace);
-	
-	URPGAbilitySystemComponent* ASC = AbilitySystemComponent;
-	if (ASC == nullptr)
-	{
-		ASC = GetASC();
-	}
-
-	if (ASC && ASC->HasMatchingGameplayTag(FRPGGameplayTags::Get().Player_Block_CursorTrace))
-	{
-		if (LastActor) LastActor->UnHighlightActor();
-		if (ThisActor) ThisActor->UnHighlightActor();
-		LastActor = nullptr;
-		ThisActor = nullptr;
-		return;
-	}
-
-	// Throttle scene-query to ~30 Hz — cheap on its own, kept as a defensive pattern.
-	const float CurrentTime = GetWorld()->GetTimeSeconds();
-	if ((CurrentTime - CursorTraceLastTime) < CursorTraceInterval)
-	{
-		return;
-	}
-	CursorTraceLastTime = CurrentTime;
-
-	FHitResult CursorHit;
-	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
-	if (!CursorHit.bBlockingHit) return;
-	
-	LastActor = ThisActor;
-	ThisActor = CursorHit.GetActor();
-
-	if (LastActor != ThisActor)
-	{
-		if (LastActor) LastActor->UnHighlightActor();
-		if (ThisActor) ThisActor->HighlightActor();
-	}
-}
-
-
-void ARPGPlayerController::UpdateMouse()
-{
-	// TODO: Specific cursor setting for Top-Down? Need to make it changeable 
-	bShowMouseCursor = true;
-	DefaultMouseCursor = EMouseCursor::Default;
-	
-	FInputModeGameAndUI InputModeData;
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	InputModeData.SetHideCursorDuringCapture(false);
-	SetInputMode(InputModeData);
 }
 
 void ARPGPlayerController::OnInputTagPressed(FGameplayTag InputTag)
@@ -180,7 +138,6 @@ void ARPGPlayerController::ProcessInputTag(FGameplayTag InputTag, ERPGInputEvent
 		if (EventType == ERPGInputEvent::IE_Released) GetASC()->AbilityInputTagReleased(InputTag);
 		if (EventType == ERPGInputEvent::IE_Held) GetASC()->AbilityInputTagHeld(InputTag);
 	}
-
 }
 
 URPGAbilitySystemComponent* ARPGPlayerController::GetASC()
@@ -191,10 +148,3 @@ URPGAbilitySystemComponent* ARPGPlayerController::GetASC()
 	}
 	return AbilitySystemComponent;
 }
-
-bool ARPGPlayerController::GetCursorHit(FHitResult& HitResult)
-{
-	return GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
-}
-
-

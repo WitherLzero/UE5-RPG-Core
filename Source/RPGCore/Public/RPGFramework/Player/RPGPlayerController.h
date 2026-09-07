@@ -14,7 +14,6 @@ class UDamageTextPoolManager;
 class URPGAbilitySystemComponent;
 enum class ERPGInputEvent : uint8;
 class URPGInputConfig;
-class IEnemyInterface;
 struct FInputActionValue;
 class UInputAction;
 class UInputMappingContext;
@@ -38,10 +37,6 @@ protected:
 	virtual void SetupInputComponent() override;
 	
 private:
-	// helpers
-	void UpdateMouse();
-	void CursorTrace();
-	 
 	// IA Callbacks
 	void OnInputTagPressed(FGameplayTag InputTag);
 	void OnInputTagReleased(FGameplayTag InputTag);
@@ -57,7 +52,27 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly,Category= "Input")
 	TObjectPtr<URPGInputConfig> InputConfig;
-	
+
+	// ---- Cursor configuration (applied once in BeginPlay) ----
+	// Genre-neutral: defaults match Aura (top-down). Third-person hosts
+	// override in BP class defaults or ctor. Dynamic show/hide during
+	// gameplay is NOT handled here — mechanics that need the cursor call
+	// the engine APIs directly (see docs/adr/0003).
+	UPROPERTY(EditDefaultsOnly, Category="Cursor")
+	bool bShowCursor = true;
+
+	UPROPERTY(EditDefaultsOnly, Category="Cursor")
+	TEnumAsByte<EMouseCursor::Type> MouseCursorType = EMouseCursor::Default;
+
+	/** true → FInputModeGameAndUI (top-down default); false → FInputModeGameOnly. */
+	UPROPERTY(EditDefaultsOnly, Category="Cursor|InputMode")
+	bool bUseGameAndUIMode = true;
+
+	UPROPERTY(EditDefaultsOnly, Category="Cursor|InputMode")
+	EMouseLockMode MouseLockMode = EMouseLockMode::DoNotLock;
+
+	UPROPERTY(EditDefaultsOnly, Category="Cursor|InputMode")
+	bool bHideCursorDuringCapture = false;
 
 	/** DamageTextActor class for Actor-pooling (Scheme B). */
 	UPROPERTY(EditDefaultsOnly)
@@ -65,27 +80,10 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UDamageTextPoolManager> DamageTextPool;
-
+	
 	UFUNCTION(BlueprintPure)
 	UDamageTextPoolManager* GetDamageTextPool() const { return DamageTextPool; }
 	
 	UPROPERTY()
 	TObjectPtr<URPGAbilitySystemComponent> AbilitySystemComponent;
-	
-	TScriptInterface<IEnemyInterface> LastActor;
-	TScriptInterface<IEnemyInterface> ThisActor;
-
-	/** Rate-limits the cursor scene-query in CursorTrace().
-	 *  At 30 Hz the latency is unnoticeable for highlight feedback
-	 *  while cutting ~50 % of the queries per second.
-	 *  This is primarily a defensive / learning optimisation —
-	 *  the single line-trace itself is cheap on modern hardware,
-	 *  but the pattern matters when the scene is heavy
-	 *  (e.g. complex collision, mobile, many actors). */
-	float CursorTraceLastTime = 0.f;
-	static constexpr float CursorTraceInterval = 1.f / 30.f;
-	
-public:
-	bool GetCursorHit(FHitResult& HitResult);
-	bool HitEnemyActor() const { return ThisActor?true:false;}
 };
