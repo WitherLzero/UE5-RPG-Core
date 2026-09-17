@@ -40,6 +40,27 @@ void URPGAbilitySystemComponent::AddCharacterPassiveAbilities(
 	}
 }
 
+void URPGAbilitySystemComponent::AddCharacterOneShotAbilities(
+	const TArray<TSubclassOf<UGameplayAbility>>& OneShotAbilities)
+{
+	if (!IsOwnerActorAuthoritative()) return;
+	for (const TSubclassOf<UGameplayAbility> AbilityClass : OneShotAbilities)
+	{
+		if (!AbilityClass) continue;
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		GiveAbilityAndActivateOnce(AbilitySpec);
+	}
+}
+
+FGameplayAbilitySpecHandle URPGAbilitySystemComponent::ActivateOneShotAbility(TSubclassOf<UGameplayAbility> AbilityClass, int32 Level)
+{
+	if (!IsOwnerActorAuthoritative()) return FGameplayAbilitySpecHandle();
+	if (!AbilityClass) return FGameplayAbilitySpecHandle();
+	FGameplayAbilitySpec AbilitySpec(AbilityClass, Level);
+	GiveAbilityAndActivateOnce(AbilitySpec);
+	return AbilitySpec.Handle;
+}
+
 void URPGAbilitySystemComponent::ApplyActionToAbilities(const FAbilitySpecAction& Action)
 {
 	FScopedAbilityListLock ActiveScopeLock(*this);

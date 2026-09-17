@@ -30,6 +30,8 @@ public:
 	
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
 	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities);
+	void AddCharacterOneShotAbilities(const TArray<TSubclassOf<UGameplayAbility>>& OneShotAbilities);
+	FGameplayAbilitySpecHandle ActivateOneShotAbility(TSubclassOf<UGameplayAbility> AbilityClass, int32 Level = 1);
 	void ApplyActionToAbilities(const FAbilitySpecAction& Action);
 	
 	void AbilityInputTagPressed(const FGameplayTag& InputTag);

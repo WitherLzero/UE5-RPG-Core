@@ -4,6 +4,8 @@
 #include "RPGFramework/Character/RPGCharacterBase.h"
 #include "RPGFramework/Player/RPGPlayerState.h"
 
+#include "RPGFramework/GAS/RPGAbilitySystemComponent.h"
+
 #include "AbilitySystemComponent.h"
 #include "InputActionValue.h"
 #include "RPGCore/RPGCore.h"
@@ -60,6 +62,14 @@ void ARPGCharacterBase::InitAbilityActorInfo()
 		if (AbilitySystemComponent)
 		{
 			AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+		}
+	}
+
+	if (HasAuthority() && !StartupOneShotAbilities.IsEmpty())
+	{
+		if (URPGAbilitySystemComponent* RPGASC = Cast<URPGAbilitySystemComponent>(AbilitySystemComponent))
+		{
+			RPGASC->AddCharacterOneShotAbilities(StartupOneShotAbilities);
 		}
 	}
 }
